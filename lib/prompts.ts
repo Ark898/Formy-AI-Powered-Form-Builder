@@ -139,36 +139,33 @@ ${stringifiedBlocks}
 {
   "actionType": "createForm",
   "blocks": [
-    
     {
-    "id": "row-layout-1",
-    "blockType": "RowLayout",
-    "attributes": {},
-    "isLocked": true,
-    "childblocks": [
+      "id": "row-layout-1",
+      "blockType": "RowLayout",
+      "attributes": {},
+      "isLocked": true,
+      "childblocks": [
         {
-        "id": "heading-1",
-        "blockType": "Heading",
-        "isLo
-        "attributes": {
-          "label": "New Form for Survey",
-          "level": 1,
-          "fontSize": "4x-large",
-          "fontWeight": "normal",
-     
+          "id": "heading-1",
+          "blockType": "Heading",
+          "attributes": {
+            "label": "New Form for Survey",
+            "level": 1,
+            "fontSize": "4x-large",
+            "fontWeight": "normal"
+          }
+        },
+        {
+          "id": "desc-1",
+          "blockType": "Paragraph",
+          "attributes": {
+            "label": "Description",
+            "text": "This form is to gather user feedback.",
+            "fontSize": "small",
+            "fontWeight": "normal"
+          }
         }
-      },
-      {
-        "id": "desc-1",
-        "blockType": "Paragraph",
-        "attributes": {
-          "label": "Description",
-          "text": "This form is to gather user feedback.",
-          "fontSize": "small",
-          "fontWeight": "normal"
-        }
-      },
-     ],
+      ]
     },
     {
       "id": "new-id-3",

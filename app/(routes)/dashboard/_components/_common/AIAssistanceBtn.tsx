@@ -17,9 +17,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useBuilder } from "@/context/builder-provider";
 import { toast } from "@/hooks/use-toast";
 import { generateAIPrompt } from "@/actions/ai.action";
-import { generateUniqueId } from "@/lib/helper";
-import { generateFormQuestionPrompt } from "@/lib/prompts";
-import { Loader, Sparkles, X } from "lucide-react";
+import { generateUniqueId, MAX_AI_PROMPT_LENGTH } from "@/lib/helper";
+import { Loader, Sparkles } from "lucide-react";
 import React, { useState } from "react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
@@ -42,25 +41,33 @@ const AIAssistanceBtn = () => {
   };
 
   const GenerateFormQuestionsWithAI = async () => {
-    if (!userRequest) {
+    const trimmedRequest = userRequest.trim();
+    if (!trimmedRequest) {
       toast({
         title: "Please enter a request",
       });
       return;
     }
+    if (trimmedRequest.length > MAX_AI_PROMPT_LENGTH) {
+      toast({
+        title: "Request is too long",
+        description: `Keep it under ${MAX_AI_PROMPT_LENGTH} characters.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
       setLoading(true);
       const formName = formData?.name || "";
       const formDescription = formData?.description || "";
 
-      const PROMPT = generateFormQuestionPrompt(
-        userRequest,
+      const result = await generateAIPrompt(
+        trimmedRequest,
         formName,
         formDescription,
         blockLayouts
       );
-
-      const result = await generateAIPrompt(PROMPT);
 
       if (!result.success || !result.data) {
         throw new Error(result.message || "Failed to generate AI response");
@@ -153,11 +160,17 @@ const AIAssistanceBtn = () => {
           value={userRequest}
           rows={4}
           readOnly={isPublished}
+          maxLength={MAX_AI_PROMPT_LENGTH}
           className="block h-32 w-full resize-none bg-background text-sm"
           placeholder="e.g. Create a hotel booking form with check-in dates, room type, guests, and a special requests field..."
           spellCheck="false"
           onChange={(e) => setUserRequest(e.target.value)}
         />
+        <div className="mt-1 flex justify-end">
+          <span className="text-[11px] tabular-nums text-muted-foreground">
+            {userRequest.length} / {MAX_AI_PROMPT_LENGTH}
+          </span>
+        </div>
       </div>
 
       <div className="mt-3 flex items-center justify-between gap-3">
@@ -173,7 +186,7 @@ const AIAssistanceBtn = () => {
           type="button"
           size="sm"
           className="gap-1.5 px-4"
-          disabled={loading || isPublished}
+          disabled={loading || isPublished || !userRequest.trim()}
           onClick={GenerateFormQuestionsWithAI}
         >
           {loading ? (

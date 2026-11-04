@@ -513,9 +513,9 @@ Publish
 
 ```
 AIAssistanceBtn
-  → build prompt (role, block contract, existing blocks, output schema)
-  → generateAIPrompt(prompt)                    [server action]
-    → auth + prompt length ≤ 4000
+  → generateAIPrompt(request, title, description, blocks)   [server action]
+    → auth + request length ≤ 4000 + block payload ≤ 100 KB
+    → build prompt once (role, block contract, existing blocks, schema)
     → rate limit: 5 / user / minute
     → generateGeminiResponse(prompt)
         → model 1: gemini-3.5-flash-lite
@@ -525,6 +525,8 @@ AIAssistanceBtn
   → inject fresh unique IDs into every block/child
   → addQuestions → append; createForm → replace canvas
 ```
+
+The client sends **structured inputs, never a pre-built prompt**: prompt construction lives server-side so the 4,000-character limit applies to the user's description, not to the system instructions and form JSON around it.
 
 The AI is treated as **untrusted input**: output is parsed, shape-checked, and IDs are regenerated before it touches state.
 
@@ -681,7 +683,7 @@ Principles:
 | `saveFormSchema` | `formId` ≥1; optional name ≤100 / description ≤500; `jsonBlocks` ≤100,000 chars and valid JSON |
 | `submitResponseSchema` | `formId` 1–100; `response` ≤100,000 chars and valid JSON |
 | `updateFormSettingsSchema` | colors ≤50; banner ≤10,000; webhook `""` or safe public URL; `maxResponses` int 1–1,000,000; `expiryDate` `""` or parseable |
-| AI prompt | string, non-empty, ≤4,000 chars |
+| AI request | user request non-empty and ≤4,000 chars; serialized blocks ≤100,000 chars; prompt assembled server-side |
 | Block properties | per-block schema (e.g. TextField: label 2–255, optional helper ≤255) |
 
 Why both client and server validation?
